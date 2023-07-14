@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "phpunit",
-    "commit": "commit"
+    "commit": "commit",
+    "release": "release-it --no-npm.publish"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,57 @@
   "devDependencies": {
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
-    "@commitlint/prompt-cli": "^17.6.6"
+    "@commitlint/prompt-cli": "^17.6.6",
+    "@release-it/bumper": "^5.0.0",
+    "@release-it/conventional-changelog": "^7.0.0",
+    "release-it": "^16.1.0"
+  },
+  "release-it": {
+    "github": {
+      "release": true
+    },
+    "git": {
+      "requireBranch": "main",
+      "commitMessage": "chore(release): {{currentTag}} [skip ci]\n\n{{currentTag}}\n\n{{changelog}}",
+      "tagName": "{{version}}",
+      "tagAnnotation": "Release {{version}}",
+      "requireCleanWorkingDir": false,
+      "pushArgs": [
+        "--follow-tags"
+      ],
+      "commitArgs": [
+        "--no-verify"
+      ]
+    },
+    "hooks": {
+      "after:bump": [
+        "npx auto-changelog -p"
+      ]
+    },
+    "plugins": {
+      "@release-it/bumper": {
+        "out": [
+          "composer.json",
+          "./app/version.json"
+        ]
+      },
+      "@release-it/conventional-changelog": {
+        "infile": "CHANGELOG.md",
+        "header": "# Changelog",
+        "preset": {
+          "name": "conventionalcommits",
+          "types": [
+            {
+              "type": "feat",
+              "section": "🚀 Features"
+            },
+            {
+              "type": "fix",
+              "section": "🐞 Bug Fixes"
+            }
+          ]
+        }
+      }
+    }
   }
 }
