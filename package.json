@@ -1,0 +1,33 @@
+{
+  "name": "wire-cli",
+  "version": "1.4.6",
+  "description": "An extendable ProcessWire command line interface",
+  "main": "commitlint.config.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "phpunit",
+    "commit": "commit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wirecli/wire-cli.git"
+  },
+  "keywords": [
+    "processwire",
+    "cli",
+    "shell"
+  ],
+  "author": "Joani Eizmendi (flydev-fr)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wirecli/wire-cli/issues"
+  },
+  "homepage": "https://github.com/wirecli/wire-cli#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.6",
+    "@commitlint/config-conventional": "^17.6.6",
+    "@commitlint/prompt-cli": "^17.6.6"
+  }
+}
