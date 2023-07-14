@@ -41,15 +41,7 @@
     "git": {
       "requireBranch": "main",
       "commitMessage": "chore(release): {{currentTag}} [skip ci]\n\n{{currentTag}}\n\n{{changelog}}",
-      "tagName": "{{version}}",
-      "tagAnnotation": "Release {{version}}",
-      "requireCleanWorkingDir": false,
-      "pushArgs": [
-        "--follow-tags"
-      ],
-      "commitArgs": [
-        "--no-verify"
-      ]
+      "requireCleanWorkingDir": false
     },
     "hooks": {
       "after:bump": [
