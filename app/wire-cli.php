@@ -54,8 +54,8 @@ if (file_exists(__DIR__.'/../../../autoload.php')) {
 }
 
 // get version from composer.json
-$composer = json_decode(file_get_contents(__DIR__.'/../composer.json'));
-$version = $composer->version;
+$json = json_decode(file_get_contents(__DIR__.'/version.json'));
+$version = join(["v", $json->version]);
 $app = new Application('wire-cli - An extendable ProcessWire CLI', $version);
 
 $app->add(new UserCreateCommand());
