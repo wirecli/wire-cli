@@ -1,6 +1,6 @@
 {
   "name": "wire-cli",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "An extendable ProcessWire command line interface",
   "main": "commitlint.config.js",
   "directories": {
