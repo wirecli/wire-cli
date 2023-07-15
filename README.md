@@ -1,3 +1,5 @@
+![wire-cli illustration](https://github.com/wirecli/wire-cli/blob/main/docs/assets/illustration.png?raw=true)
+
 # wire-cli
 
 wire-cli is a CLI (Command-Line Interface) tool designed to provide ease of use and efficiency for ProcessWire developers. With wire-cli, you can automate common tasks, manage ProcessWire projects effortlessly, and enhance your development workflow.
@@ -38,13 +40,16 @@ For a complete list of available commands and options, use the `help` command:
 
 For detailed documentation and usage examples, please refer to the [official documentation](https://github.com/wirecli/wire-cli).
 
+Support thread:
+https://processwire.com/talk/topic/28788-wire-cli-a-cli-tool-for-processwire-developers/
+
 ## Contributing
 
 Contributions are welcome! If you encounter any issues or have suggestions for improvements, please submit an issue or a pull request on the [GitHub repository](https://github.com/wirecli/wire-cli).
 
 ## Available commands
 
-![](./docs/capture-cmd.jpg)
+![Commands preview](https://github.com/wirecli/wire-cli/blob/main/docs/assets/capture-cmd.jpg)
 
 ## Credits
 

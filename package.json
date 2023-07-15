@@ -40,10 +40,13 @@
     },
     "git": {
       "requireBranch": "main",
-      "commitMessage": "chore(release): {{currentTag}} [skip ci]\n\n{{currentTag}}\n\n{{changelog}}",
+      "commitMessage": "chore(release): %s",
       "requireCleanWorkingDir": false
     },
     "hooks": {
+      "before:init": [
+        "git pull"
+      ],
       "after:bump": [
         "npx auto-changelog -p"
       ]
