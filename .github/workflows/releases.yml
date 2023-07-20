@@ -1,6 +1,9 @@
 # .github/workflows/release.yml
 name: Release
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
 jobs:
   release:
     runs-on: ubuntu-20.04
