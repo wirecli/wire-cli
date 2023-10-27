@@ -47,6 +47,13 @@ https://processwire.com/talk/topic/28788-wire-cli-a-cli-tool-for-processwire-dev
 
 Contributions are welcome! If you encounter any issues or have suggestions for improvements, please submit an issue or a pull request on the [GitHub repository](https://github.com/wirecli/wire-cli).
 
+## Contributors
+
+As always, thanks to all the contributors!
+
+<!--GAMFC--><!--GAMFC-END-->
+
+
 ## Available commands
 
 ![Commands preview](https://github.com/wirecli/wire-cli/blob/main/docs/assets/capture-cmd.jpg)

@@ -50,7 +50,7 @@ class Installer {
    * Minimum required PHP version to install ProcessWire
    *
    */
-  const MIN_REQUIRED_PHP_VERSION = '7.4.0';
+  const MIN_REQUIRED_PHP_VERSION = '5.3.8';
 
   /**
    * Test mode for installer development, non destructive
@@ -62,7 +62,7 @@ class Installer {
    * Default site profile
    *
    */
-  const PROFILE_DEFAULT = 'site-default';
+  const PROFILE_DEFAULT = 'site-blank';
 
   /**
    * File permissions, determined in the dbConfig function
@@ -78,15 +78,6 @@ class Installer {
    *
    */
   protected $numErrors = 0;
-
-  /**
-   * Available color themes
-   *
-   */
-  protected $colors = array(
-    'classic',
-    'warm'
-  );
 
   /**
    * @param LoggerInterface $log
@@ -354,7 +345,17 @@ class Installer {
    * @param array $values
    */
   protected function dbSaveConfigFile(array $values) {
-    $salt = md5(mt_rand() . microtime(true));
+    $file = __FILE__; 
+		$time = time();
+		$host = empty($values['httpHosts']) ? '' : implode(',', $values['httpHosts']);
+
+		if(function_exists('random_bytes')) {
+			$authSalt = sha1(random_bytes(random_int(40, 128)));
+			$tableSalt = sha1(random_int(0, 65535) . "$host$file$time"); 
+		} else {
+			$authSalt = md5(mt_rand() . microtime(true));
+			$tableSalt = md5(mt_rand() . "$host$file$time"); 
+		}
 
     $cfg =  "\n/**" .
       "\n * Installer: Database Configuration" .
@@ -366,14 +367,27 @@ class Installer {
       "\n\$config->dbPass = '$values[dbPass]';" .
       "\n\$config->dbPort = '$values[dbPort]';" .
       "\n" .
-      "\n/**" .
-      "\n * Installer: User Authentication Salt " .
-      "\n * " .
-      "\n * Must be retained if you migrate your site from one server to another" .
-      "\n * " .
-      "\n */" .
-      "\n\$config->userAuthSalt = '$salt'; " .
-      "\n" .
+      "\n/**" . 
+			"\n * Installer: User Authentication Salt " . 
+			"\n * " .
+			"\n * This value was randomly generated for your system on " . date('Y/m/d') . "." . 
+			"\n * This should be kept as private as a password and never stored in the database." . 
+			"\n * Must be retained if you migrate your site from one server to another." . 
+			"\n * Do not change this value, or user passwords will no longer work." .
+			"\n * " . 
+			"\n */" . 
+			"\n\$config->userAuthSalt = '$authSalt'; " .
+			"\n" .
+			"\n/**" . 
+			"\n * Installer: Table Salt (General Purpose) " .
+			"\n * " .
+			"\n * Use this rather than userAuthSalt when a hashing salt is needed for non user " .
+			"\n * authentication purposes. Like with userAuthSalt, you should never change " . 
+			"\n * this value or it may break internal system comparisons that use it. " . 
+			"\n * " .
+			"\n */" . 
+			"\n\$config->tableSalt = '$tableSalt'; " .
+			"\n" . 
       "\n/**" .
       "\n * Installer: File Permission Configuration" .
       "\n * " .
@@ -392,6 +406,15 @@ class Installer {
       "\n *" . 
       "\n */".
       "\n\$config->defaultAdminTheme = 'AdminThemeUikit';" .
+      "\n" . 
+      "\n/**" .
+			"\n * Installer: Unix timestamp of date/time installed" .
+			"\n * " .
+			"\n * This is used to detect which when certain behaviors must be backwards compatible." .
+			"\n * Please leave this value as-is." .
+			"\n * " .
+			"\n */" .
+			"\n\$config->installed = " . time() . ";" .
       "\n\n";
 
     if (!empty($values['httpHosts'])) {
@@ -611,14 +634,9 @@ class Installer {
     $adminName = htmlentities($adminName, ENT_QUOTES, "UTF-8");
 
     if ($this->v) $this->log->info("User account saved: <b>{$user->name}</b>");
-
-    $colors = $wire->sanitizer->pageName($accountInfo['colors']);
-    if (!in_array($colors, $this->colors)) $colors = reset($this->colors);
     $theme = $wire->modules->getInstall('AdminThemeUikit');
     $configData = $wire->modules->getModuleConfigData('AdminThemeUikit');
-    $configData['colors'] = $colors;
     $wire->modules->saveModuleConfigData('AdminThemeUikit', $configData);
-    if ($this->v) $this->log->info("Saved admin color set <b>$colors</b> - you will see this when you login.");
 
     if ($this->v) $this->log->info("It is recommended that you make <b>/site/config.php</b> non-writable, for security.");
 
