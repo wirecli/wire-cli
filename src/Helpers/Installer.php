@@ -50,7 +50,7 @@ class Installer {
    * Minimum required PHP version to install ProcessWire
    *
    */
-  const MIN_REQUIRED_PHP_VERSION = '7.4.0';
+  const MIN_REQUIRED_PHP_VERSION = '5.3.8';
 
   /**
    * Test mode for installer development, non destructive
@@ -62,7 +62,7 @@ class Installer {
    * Default site profile
    *
    */
-  const PROFILE_DEFAULT = 'site-default';
+  const PROFILE_DEFAULT = 'site-blank';
 
   /**
    * File permissions, determined in the dbConfig function
@@ -78,15 +78,6 @@ class Installer {
    *
    */
   protected $numErrors = 0;
-
-  /**
-   * Available color themes
-   *
-   */
-  protected $colors = array(
-    'classic',
-    'warm'
-  );
 
   /**
    * @param LoggerInterface $log
@@ -611,14 +602,9 @@ class Installer {
     $adminName = htmlentities($adminName, ENT_QUOTES, "UTF-8");
 
     if ($this->v) $this->log->info("User account saved: <b>{$user->name}</b>");
-
-    $colors = $wire->sanitizer->pageName($accountInfo['colors']);
-    if (!in_array($colors, $this->colors)) $colors = reset($this->colors);
     $theme = $wire->modules->getInstall('AdminThemeUikit');
     $configData = $wire->modules->getModuleConfigData('AdminThemeUikit');
-    $configData['colors'] = $colors;
     $wire->modules->saveModuleConfigData('AdminThemeUikit', $configData);
-    if ($this->v) $this->log->info("Saved admin color set <b>$colors</b> - you will see this when you login.");
 
     if ($this->v) $this->log->info("It is recommended that you make <b>/site/config.php</b> non-writable, for security.");
 
