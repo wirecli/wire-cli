@@ -40,7 +40,6 @@
     },
     "git": {
       "requireBranch": "main",
-      "commitMessage": "chore(release): %s",
       "requireCleanWorkingDir": false
     },
     "hooks": {
