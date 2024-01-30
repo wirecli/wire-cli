@@ -256,7 +256,14 @@ class PwModuleTools extends PwConnector {
     $this->tools->nl();
     $this->tools->writeComment(" Extracting module...\n");
     $dir = \ProcessWire\wire('config')->paths->siteModules . $this->module;
-    if (is_dir($dir)) chmod($dir, 0755);
+    
+    if (is_dir($dir)) {
+      $this->tools->writeComment(" Directory `$this->module` already exists, remaming to '.{$this->module}'");
+      chmod($dir, 0755);
+      $fs = new Filesystem();
+      // rename module directory with a dot on front
+      $fs->rename($dir, \ProcessWire\wire('config')->paths->siteModules.'.'.$this->module);
+    } 
 
     $this->downloader->extract($this->compressedFilePath, \ProcessWire\wire('config')->paths->siteModules . $this->module, $this->module);
 
