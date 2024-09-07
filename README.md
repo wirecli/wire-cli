@@ -51,9 +51,7 @@ Contributions are welcome! If you encounter any issues or have suggestions for i
 
 As always, thanks to all the contributors!
 
-<!--GAMFC--><a href="https://github.com/flydev-fr" title="j. eizmendi">
-  <img src="https://avatars.githubusercontent.com/u/11658616?v=4" width="32;" alt="j. eizmendi"/>
-</a><!--GAMFC-END-->
+<!--GAMFC--><a href="https://github.com/flydev-fr" title="j. eizmendi"><img src="https://avatars.githubusercontent.com/u/11658616?v=4" width="32;" alt="j. eizmendi"/></a><!--GAMFC-END-->
 
 
 ## Available commands
