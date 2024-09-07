@@ -31,6 +31,7 @@ use DirectoryIterator;
 class Installer {
 
   protected $fs = null;
+  protected $v = true;
 
   /**
    * Whether or not we force installed files to be copied.

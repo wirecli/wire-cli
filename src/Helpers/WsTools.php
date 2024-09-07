@@ -23,7 +23,7 @@ Class WsTools {
   protected $helper;
   protected $input;
 
-  protected static $types = array('error', 'success', 'info', 'comment', 'link', 'header', 'mark');
+  protected static $types = array('error', 'warning', 'success', 'info', 'comment', 'link', 'header', 'mark');
 
   /**
    * Construct WsTools
@@ -51,6 +51,9 @@ Class WsTools {
 
     $style = new OutputFormatterStyle('blue', 'white', array('reverse'));
     $output->getFormatter()->setStyle('mark', $style);
+    
+    $style = new OutputFormatterStyle('yellow', null, array('bold'));
+    $output->getFormatter()->setStyle('warning', $style);
   }
 
   /**
@@ -166,6 +169,17 @@ Class WsTools {
    */
   public function writeComment($string, $write = true) {
     return $this->write($string, 'comment', $write);
+  }
+  
+  /**
+   * Simple method for coloring warning output
+   *
+   * @param string $string
+   * @param boolean $write
+   * @return tinted string
+   */
+  public function writeWarning($string, $write = true) {
+    return $this->write($string, 'warning', $write);
   }
 
   /**
