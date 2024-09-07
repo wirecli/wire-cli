@@ -25,6 +25,7 @@ class Downloader {
   private $version;
   private $output;
   private $tools;
+  private $compressedFilePath;
 
   /**
    * Construct Downloader

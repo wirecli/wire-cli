@@ -41,9 +41,13 @@ class NewCommand extends PWConnector {
   private $projectName;
   private $projectDir;
   private $version;
+  private $helper;
   private $compressedFilePath;
   private $requirementsErrors = array();
+  private $src;
   private $installer;
+  private $verbose;
+  protected $downloader;
   protected $tools;
 
   /**

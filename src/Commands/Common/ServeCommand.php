@@ -19,6 +19,9 @@ use Wirecli\Helpers\WsTools as Tools;
  */
 class ServeCommand extends PwConnector {
 
+  private $helper = null;
+
+
   /**
    * Configures the current command.
    */
