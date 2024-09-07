@@ -66,7 +66,7 @@ class NewCommand extends PWConnector {
     'userpass' => '',
     'userpass_confirm' => '',
     'useremail' => '',
-    'color' => 'classic',
+    'color' => 'classic'
   );
 
   /**
@@ -82,6 +82,7 @@ class NewCommand extends PWConnector {
       ->setName('new')
       ->setDescription('Creates a new ProcessWire project')
       ->addArgument('directory', InputArgument::OPTIONAL, 'Directory where the new project will be created')
+      ->addOption('force', null, InputOption::VALUE_NONE, 'Force installation in an non empty directory')
       ->addOption('dbUser', null, InputOption::VALUE_REQUIRED, 'Database user')
       ->addOption('dbPass', null, InputOption::VALUE_OPTIONAL, 'Database password')
       ->addOption('dbName', null, InputOption::VALUE_REQUIRED, 'Database name')
@@ -410,9 +411,10 @@ class NewCommand extends PWConnector {
    * @throws \RuntimeException if the downloaded archive could not be extracted
    */
   private function extract() {
+    $forceInstall = $this->input->getOption('force');
     $this->tools->writeBlockBasic('Preparing project...');
     $cfp = $this->src ? $this->src : $this->compressedFilePath;
-    $this->downloader->extract($cfp, $this->projectDir, $this->getName());
+    $this->downloader->extract($cfp, $this->projectDir, $this->getName(), $forceInstall);
 
     return $this;
   }

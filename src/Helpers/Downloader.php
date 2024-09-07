@@ -154,7 +154,7 @@ class Downloader {
    * @param string $to
    * @param string $name
    */
-  public function extract($from, $to, $name = '') {
+  public function extract($from, $to, $name = '', $force = false) {
     //var_dump($from, $to, $name);exit;
     $source = $name ? 'ProcessWire' : 'the module';
 
@@ -164,12 +164,18 @@ class Downloader {
     }
 
     // check for empty directory
-    $filesInsideDir = new \FilesystemIterator($to, \FilesystemIterator::SKIP_DOTS);
-    if (iterator_count($filesInsideDir) > 1) {
-      throw new \RuntimeException(sprintf(
-        "ProcessWire can't be installed because the target folder `%s` is not empty.\n" .
-        "Use an empty directory or provide an argument where the new project will be created like `wire-cli new <dirname>`",
-        $to));
+    if (!$force) {
+      $filesInsideDir = new \FilesystemIterator($to, \FilesystemIterator::SKIP_DOTS);
+      if (iterator_count($filesInsideDir) > 1) {
+        throw new \RuntimeException(sprintf(
+          "ProcessWire can't be installed because the target folder `%s` is not empty.\n" .
+          "Use an empty directory or provide an argument where the new project will be created like `wire-cli new <dirname>`.\n" .
+          "Use option --force to proceed the installation in a non empty directory.",
+          $to));
+      }
+    }
+    else {
+      $this->tools->writeWarning("ProcessWire will be installed in a non-empty dir (--force found on command-line).\n");    
     }
 
     try {
