@@ -266,11 +266,31 @@ class NewCommand extends PWConnector {
   /**
    * Get absolute path
    *
-   * @param $path
+   * @param string $path
    * @return string
    */
   private function getAbsolutePath($path) {
-    return $this->fs->isAbsolutePath($path) ? $path : getcwd() . DIRECTORY_SEPARATOR . $path;
+    // Normalize slashes for cross-platform compatibility
+    $normalizedPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+    // Remove trailing slashes
+    $normalizedPath = rtrim($normalizedPath, DIRECTORY_SEPARATOR);
+    // If path is quoted (e.g., with spaces), remove quotes
+    $normalizedPath = trim($normalizedPath, "'\"");
+    // If not absolute, prepend current working directory
+    $absolutePath = $this->fs->isAbsolutePath($normalizedPath)
+      ? $normalizedPath
+      : getcwd() . DIRECTORY_SEPARATOR . $normalizedPath;
+    // Canonicalize path (resolve .., .)
+    $realPath = realpath($absolutePath);
+    if ($realPath === false) {
+      throw new \RuntimeException(
+        sprintf(
+          "The provided --src path '%s' does not exist or is not accessible. Please check the path and try again.",
+          $path
+        )
+      );
+    }
+    return $realPath;
   }
 
   /**

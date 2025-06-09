@@ -31,11 +31,17 @@ $ wirecli new {directory}*
 --userpass : Admin password
 --useremail : Admin email address
 --profile : Default site profile: `path/to/profile.zip` OR one of `beginner, blank, classic, default, languages`
---src : Path to pre-downloaded folder, zip or tgz: `path/to/src`
+--src : Path to pre-downloaded folder, zip or tgz: `path/to/src` (supports relative/absolute, spaces, and both / and \ slashes)
 --sha : Download specific commit
 --no-install : Disable installation
 --v : Increase the verbosity of messages
 ```
+
+**Note:**
+- Paths for `--src` can be relative or absolute.
+- Paths with spaces should be quoted: `--src="C:/path/with spaces/ProcessWire"`
+- Both `/` and `\` slashes are supported and normalized automatically.
+- If the path does not exist or is not accessible, a clear error message will be shown.
 
 ### Examples
 

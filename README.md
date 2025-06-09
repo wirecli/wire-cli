@@ -34,6 +34,12 @@ Run `wire-cli` followed by the desired command to execute various tasks. For exa
 wire-cli new myproject
 ```
 
+### Path Arguments (e.g., --src)
+- You can use both relative and absolute paths for arguments like `--src`.
+- Paths with spaces should be quoted: `--src="C:/path/with spaces/ProcessWire"`
+- Both forward `/` and backward `\` slashes are supported; they are normalized automatically.
+- If the path does not exist or is not accessible, a clear error message will be shown.
+
 For a complete list of available commands and options, use the `help` command:
 
 ## Documentation

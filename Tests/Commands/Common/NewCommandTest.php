@@ -53,6 +53,58 @@ class NewCommandTest extends Base {
         $this->assertDirectoryNotExists(Base::INSTALLATION_FOLDER . '/site');
     }
 
+    public function testDownloadWithRelativeSrc() {
+        $this->checkInstallation();
+        $relativePath = basename(Base::INSTALLATION_ARCHIVE); // e.g., 'archive.zip'
+        if (!file_exists($relativePath)) {
+            copy(Base::INSTALLATION_ARCHIVE, $relativePath);
+        }
+        // Ensure the ProcessWire directory exists for the test
+        if (!is_dir(Base::INSTALLATION_FOLDER)) {
+            mkdir(Base::INSTALLATION_FOLDER);
+        }
+        $options = array('--no-install' => true, '--src' => $relativePath);
+        $this->tester->execute(array_merge($this->defaults, $options));
+        $this->assertDirectoryExists(Base::INSTALLATION_FOLDER);
+        if (file_exists($relativePath)) {
+            unlink($relativePath);
+        }
+    }
+
+    public function testDownloadWithAbsoluteSrc() {
+        $this->checkInstallation();
+        $absolutePath = realpath(Base::INSTALLATION_ARCHIVE);
+        // Ensure the ProcessWire directory exists for the test
+        if (!is_dir(Base::INSTALLATION_FOLDER)) {
+            mkdir(Base::INSTALLATION_FOLDER);
+        }
+        $options = array('--no-install' => true, '--src' => $absolutePath);
+        $this->tester->execute(array_merge($this->defaults, $options));
+        $this->assertDirectoryExists(Base::INSTALLATION_FOLDER);
+    }
+
+    public function testDownloadWithNonExistentSrc() {
+        $this->checkInstallation();
+        $options = array('--no-install' => true, '--src' => 'nonexistent.zip');
+        $this->expectException(\RuntimeException::class);
+        $this->tester->execute(array_merge($this->defaults, $options));
+    }
+
+    public function testDownloadWithMixedSlashesAndSpacesSrc() {
+        $this->checkInstallation();
+        $absolutePath = realpath(Base::INSTALLATION_ARCHIVE);
+        // Simulate a path with mixed slashes and spaces
+        $mixedPath = str_replace('/', '\\', $absolutePath);
+        $mixedPath = ' ' . $mixedPath . ' ';
+        // Ensure the ProcessWire directory exists for the test
+        if (!is_dir(Base::INSTALLATION_FOLDER)) {
+            mkdir(Base::INSTALLATION_FOLDER);
+        }
+        $options = array('--no-install' => true, '--src' => $mixedPath);
+        $this->tester->execute(array_merge($this->defaults, $options));
+        $this->assertDirectoryExists(Base::INSTALLATION_FOLDER);
+    }
+
     /**
       * @depends testDownload
       * @expectedException RuntimeException
