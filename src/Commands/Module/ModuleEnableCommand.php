@@ -42,37 +42,42 @@ class ModuleEnableCommand extends PwModuleTools {
       ->setInput($input)
       ->writeBlockCommand($this->getName());
 
+    // Force module discovery to detect manually copied modules
+    // This ensures modules are found even before first admin login
+    \ProcessWire\wire('modules')->refresh();
+
     $modules = $this->tools->ask($input->getArgument('modules'), 'Modules', null, false, null, 'required');
     if (!is_array($modules)) $modules = explode(',', $modules);
 
     foreach ($modules as $module) {
-      // if module doesn't exist, download the module
-      if (!$this->checkIfModuleExists($module)) {
-        $this->tools->writeComment("Cannot find '{$module}' locally, trying to download...");
-        $this->tools->nl();
-        $this->passOnToModuleDownloadCommand($module, $output, $input);
-      }
-
-      // check whether module is already installed
-      if (\ProcessWire\wire('modules')->isInstalled($module)) {
-        $this->tools->writeInfo(" Module `{$module}` is already installed.");
+      $module = trim($module);
+      
+      // Validate that module exists after refresh
+      if (!\ProcessWire\wire('modules')->isInstalled($module) && !\ProcessWire\wire('modules')->get($module)) {
+        $this->tools->writeError("Module '{$module}' not found. Make sure it's installed in /site/modules/ and refresh was called.");
         continue;
       }
+      
+      $this->tools->nl()
+        ->writeInfo("Attempting to enable '{$module}' module.")
+        ->nl();
 
-      // install module
-      $options = array(
-        'noPermissionCheck' => true,
-        'noInit' => true
-      );
-
-      if (\ProcessWire\wire('modules')->getInstall($module, $options)) {
-        $this->tools->writeSuccess(" Module `{$module}` installed successfully.");
-      } else {
-        $this->tools->writeError(" Module `{$module}` does not exist.");
+      try {
+        if (!\ProcessWire\wire('modules')->isInstalled($module)) {
+          \ProcessWire\wire('modules')->install($module);
+          $this->tools->writeSuccess("Module '{$module}' installed successfully!");
+        } else {
+          $this->tools->writeComment("Module '{$module}' is already installed.");
+        }
+      } catch (\Exception $e) {
+        $this->tools->writeError("Could not install module '{$module}': " . $e->getMessage());
       }
     }
 
-    return static::SUCCESS;
+    // Final refresh to ensure module registry is up to date
+    \ProcessWire\wire('modules')->refresh();
+
+    return 0;
   }
 
   private function checkIfModuleExistsLocally($module, $output, $input) {
