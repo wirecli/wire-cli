@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit 
-  backupGlobals="false"
-  backupStaticAttributes="false"
-  colors="true"
-  convertErrorsToExceptions="true"
-  convertNoticesToExceptions="true"
-  convertWarningsToExceptions="true"
-  processIsolation="false"
-  stopOnFailure="false"
-  syntaxCheck="false"
-  printerFile="./vendor/whatthejeff/nyancat-phpunit-resultprinter/src/NyanCat/PHPUnit/ResultPrinter.php"
-  printerClass="NyanCat\PHPunit\ResultPrinter"
-  bootstrap="autoload.php"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.2/phpunit.xsd"
+         bootstrap="autoload.php"
+         colors="true"
+         backupGlobals="false"
+         processIsolation="false"
+         stopOnFailure="false"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         cacheDirectory=".phpunit.cache"
 >
-
     <php>
         <var name="DB_USER" value="root" />
         <var name="DB_PASSWD" value="root" />
@@ -26,14 +23,13 @@
         </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory>./</directory>
-            <exclude>
-                <directory>./Tests</directory>
-                <directory>./vendor</directory>
-            </exclude>
-        </whitelist>
-    </filter>
-
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+        <exclude>
+            <directory>Tests</directory>
+            <directory>vendor</directory>
+        </exclude>
+    </source>
 </phpunit>

@@ -266,11 +266,93 @@ class NewCommand extends PWConnector {
   /**
    * Get absolute path
    *
-   * @param $path
+   * @param string $path
    * @return string
    */
   private function getAbsolutePath($path) {
-    return $this->fs->isAbsolutePath($path) ? $path : getcwd() . DIRECTORY_SEPARATOR . $path;
+    // First trim any whitespace while preserving quotes
+    $path = trim($path);
+    
+    // Remove surrounding quotes if present
+    $path = trim($path, "'\"");
+
+    // Normalize slashes for cross-platform compatibility
+    $normalizedPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+    
+    // Special handling for root paths
+    if ($normalizedPath === '') {
+      return getcwd();
+    }
+    
+    // Handle root paths specially
+    if ($this->isRootPath($normalizedPath)) {
+      return $normalizedPath;
+    }
+
+    // Remove trailing slashes except for root paths
+    if (!$this->isRootPath($normalizedPath)) {
+      $normalizedPath = rtrim($normalizedPath, DIRECTORY_SEPARATOR);
+    }
+
+    // If not absolute, prepend current working directory
+    if (!$this->fs->isAbsolutePath($normalizedPath)) {
+      $normalizedPath = getcwd() . DIRECTORY_SEPARATOR . $normalizedPath;
+    }
+
+    // For existing paths, resolve symlinks and normalize
+    if (file_exists($normalizedPath)) {
+      $realPath = realpath($normalizedPath);
+      if ($realPath !== false) {
+        return $realPath;
+      }
+    }
+
+    // For source files (.zip or .tgz), verify they exist
+    if ($this->isSourceFile($path) && !file_exists($normalizedPath)) {
+      throw new \RuntimeException(
+        sprintf(
+          "The provided --src path '%s' does not exist or is not accessible. Please check the path and try again.",
+          $path
+        )
+      );
+    }
+
+    // For non-existent paths (that aren't source files), return the normalized path
+    return $normalizedPath;
+  }
+
+  /**
+   * Check if a path is a root path (e.g. "/" or "C:\")
+   * 
+   * @param string $path
+   * @return bool
+   */
+  private function isRootPath($path) {
+    // Unix root
+    if ($path === DIRECTORY_SEPARATOR) {
+      return true;
+    }
+    
+    // Windows drive root (e.g. "C:\")
+    if (strlen($path) === 3 && 
+        ctype_alpha($path[0]) && 
+        $path[1] === ':' && 
+        $path[2] === DIRECTORY_SEPARATOR) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Check if a path points to a source file (.zip or .tgz)
+   * 
+   * @param string $path
+   * @return bool
+   */
+  private function isSourceFile($path) {
+    $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    return in_array($extension, ['zip', 'tgz']);
   }
 
   /**

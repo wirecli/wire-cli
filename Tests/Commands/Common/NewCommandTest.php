@@ -22,6 +22,11 @@ class NewCommandTest extends Base {
     );
 
     /**
+     * @var array Extended configuration for tests
+     */
+    protected $extends = array();
+
+    /**
      * @before
      */
     public function setupCommand() {
@@ -50,17 +55,71 @@ class NewCommandTest extends Base {
 
         $this->assertDirectoryExists(Base::INSTALLATION_FOLDER);
         $this->assertDirectoryExists(Base::INSTALLATION_FOLDER . '/wire');
-        $this->assertDirectoryNotExists(Base::INSTALLATION_FOLDER . '/site');
+        $this->assertFileExists(Base::INSTALLATION_FOLDER . '/index.php');
+        $this->assertFileExists(Base::INSTALLATION_FOLDER . '/install.php');
+    }
+
+    public function testDownloadWithRelativeSrc() {
+        $this->checkInstallation();
+        $relativePath = basename(Base::INSTALLATION_ARCHIVE); // e.g., 'archive.zip'
+        if (!file_exists($relativePath)) {
+            copy(Base::INSTALLATION_ARCHIVE, $relativePath);
+        }
+        // Ensure the ProcessWire directory exists for the test
+        if (!is_dir(Base::INSTALLATION_FOLDER)) {
+            mkdir(Base::INSTALLATION_FOLDER);
+        }
+        $options = array('--no-install' => true, '--src' => $relativePath);
+        $this->tester->execute(array_merge($this->defaults, $options));
+        $this->assertDirectoryExists(Base::INSTALLATION_FOLDER);
+        if (file_exists($relativePath)) {
+            unlink($relativePath);
+        }
+    }
+
+    public function testDownloadWithAbsoluteSrc() {
+        $this->checkInstallation();
+        $absolutePath = realpath(Base::INSTALLATION_ARCHIVE);
+        // Ensure the ProcessWire directory exists for the test
+        if (!is_dir(Base::INSTALLATION_FOLDER)) {
+            mkdir(Base::INSTALLATION_FOLDER);
+        }
+        $options = array('--no-install' => true, '--src' => $absolutePath);
+        $this->tester->execute(array_merge($this->defaults, $options));
+        $this->assertDirectoryExists(Base::INSTALLATION_FOLDER);
+    }
+
+    public function testDownloadWithNonExistentSrc() {
+        $this->checkInstallation();
+        $options = array('--no-install' => true, '--src' => 'nonexistent.zip');
+        $this->expectException(\RuntimeException::class);
+        $this->tester->execute(array_merge($this->defaults, $options));
+    }
+
+    public function testDownloadWithMixedSlashesAndSpacesSrc() {
+        $this->checkInstallation();
+        $absolutePath = realpath(Base::INSTALLATION_ARCHIVE);
+        // Simulate a path with mixed slashes and spaces
+        $mixedPath = str_replace('/', '\\', $absolutePath);
+        $mixedPath = ' ' . $mixedPath . ' ';
+        // Ensure the ProcessWire directory exists for the test
+        if (!is_dir(Base::INSTALLATION_FOLDER)) {
+            mkdir(Base::INSTALLATION_FOLDER);
+        }
+        $options = array('--no-install' => true, '--src' => $mixedPath);
+        $this->tester->execute(array_merge($this->defaults, $options));
+        $this->assertDirectoryExists(Base::INSTALLATION_FOLDER);
     }
 
     /**
-      * @depends testDownload
-      * @expectedException RuntimeException
-      * @expectedExceptionMessageRegExp /(Database connection information did not work)./
-      */
+     * @depends testDownload
+     */
     public function testInstallWrongPassword() {
         // check ProcessWire has not been installed yet
-        if ($this->fs->exists(Base::INSTALLATION_FOLDER . '/site/config.php')) return;
+        if ($this->fs->exists(Base::INSTALLATION_FOLDER . '/site/config.php')) {
+            $this->markTestSkipped('ProcessWire is already installed');
+            return;
+        }
 
         // return the input you want to answer the question with
         $this->mockQuestionHelper($this->command, function($text, $order, Question $question) {
@@ -75,16 +134,20 @@ class NewCommandTest extends Base {
             '--dbPass' => 'wrong'
         );
 
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/(Database connection information did not work)./');
         $this->tester->execute(array_merge($this->defaults, $options));
     }
 
     /**
-      * @depends testDownload
-      * @expectedExceptionMessageRegExp /(enter a valid email address)/
-      */
+     * @depends testDownload
+     */
     public function testInstallInvalidEmailAddress() {
         // check ProcessWire has not been installed yet
-        if ($this->fs->exists(Base::INSTALLATION_FOLDER . '/site/config.php')) return;
+        if ($this->fs->exists(Base::INSTALLATION_FOLDER . '/site/config.php')) {
+            $this->markTestSkipped('ProcessWire is already installed');
+            return;
+        }
 
         // return the input you want to answer the question with
         $this->mockQuestionHelper($this->command, function($text, $order, Question $question) {
@@ -98,6 +161,8 @@ class NewCommandTest extends Base {
             '--useremail' => 'invalid'
         );
 
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/(enter a valid email address)/');
         $this->tester->execute(array_merge($this->defaults, $options));
     }
 
@@ -106,21 +171,30 @@ class NewCommandTest extends Base {
      */
     public function testInstall() {
         // check ProcessWire has not been installed yet
-        if ($this->fs->exists(Base::INSTALLATION_FOLDER . '/site/config.php')) return;
+        if ($this->fs->exists(Base::INSTALLATION_FOLDER . '/site/config.php')) {
+            $this->markTestSkipped('ProcessWire is already installed');
+            return;
+        }
 
         $this->tester->execute($this->defaults);
         $output = $this->tester->getDisplay();
 
         $this->assertDirectoryExists(Base::INSTALLATION_FOLDER . '/site');
         $this->assertFileExists(Base::INSTALLATION_FOLDER . '/site/config.php');
-        $this->assertContains('Congratulations, ProcessWire has been successfully installed.', $output);
+        $this->assertStringContainsString('Congratulations, ProcessWire has been successfully installed.', $output);
     }
 
     /**
      * @depends testInstall
-     * @expectedExceptionMessageRegExp /(There is already a \')(.*)(\' project)/
      */
     public function testIsInstalled() {
+        if (!$this->fs->exists(Base::INSTALLATION_FOLDER . '/site/config.php')) {
+            $this->markTestSkipped('ProcessWire is not installed');
+            return;
+        }
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/(There is already a \')(.*)(\' project)/');
         $this->tester->execute($this->defaults);
     }
 }
