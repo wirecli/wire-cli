@@ -42,15 +42,28 @@ class ModuleEnableCommand extends PwModuleTools {
       ->setInput($input)
       ->writeBlockCommand($this->getName());
 
+    // Refresh modules to discover any manually copied modules
+    \ProcessWire\wire('modules')->refresh();
+
     $modules = $this->tools->ask($input->getArgument('modules'), 'Modules', null, false, null, 'required');
     if (!is_array($modules)) $modules = explode(',', $modules);
 
     foreach ($modules as $module) {
+      $module = trim($module);
+      
       // if module doesn't exist, download the module
       if (!$this->checkIfModuleExists($module)) {
         $this->tools->writeComment("Cannot find '{$module}' locally, trying to download...");
         $this->tools->nl();
-        $this->passOnToModuleDownloadCommand($module, $output, $input);
+        
+        try {
+          $this->passOnToModuleDownloadCommand($module, $output, $input);
+          // Refresh modules after download to make sure the newly downloaded module is discoverable
+          \ProcessWire\wire('modules')->refresh();
+        } catch (\Exception $e) {
+          $this->tools->writeError("Failed to download module '{$module}': " . $e->getMessage());
+          continue;
+        }
       }
 
       // check whether module is already installed
@@ -59,35 +72,31 @@ class ModuleEnableCommand extends PwModuleTools {
         continue;
       }
 
-      // install module
+      // install module with proper CLI options
       $options = array(
         'noPermissionCheck' => true,
         'noInit' => true
       );
 
-      if (\ProcessWire\wire('modules')->getInstall($module, $options)) {
-        $this->tools->writeSuccess(" Module `{$module}` installed successfully.");
-      } else {
-        $this->tools->writeError(" Module `{$module}` does not exist.");
+      try {
+        if (\ProcessWire\wire('modules')->getInstall($module, $options)) {
+          $this->tools->writeSuccess(" Module `{$module}` installed successfully.");
+        } else {
+          $this->tools->writeError(" Module `{$module}` installation failed.");
+        }
+      } catch (\Exception $e) {
+        $this->tools->writeError(" Module `{$module}` does not exist or installation failed: " . $e->getMessage());
       }
     }
 
     return static::SUCCESS;
   }
 
-  private function checkIfModuleExistsLocally($module, $output, $input) {
-    if (!$this->checkIfModuleExists($module)) {
-      $output->writeln("<comment>Cannot find '{$module}' locally, trying to download...</comment>");
-      $this->passOnToModuleDownloadCommand($module, $output, $input);
-    }
-
-  }
-
   private function passOnToModuleDownloadCommand($module, $output, $input) {
-    $command = $this->getApplication()->find('mod:download');
+    $command = $this->getApplication()->find('module:download');
 
     $arguments = array(
-      'command' => 'mod:download',
+      'command' => 'module:download',
       'modules' => $module,
       '--github' => $input->getOption('github'),
       '--branch' => $input->getOption('branch')
