@@ -91,7 +91,7 @@ class FieldCreateCommand extends PwConnector {
     // get available fieldtypes
     $fieldtypes = array();
     foreach (\ProcessWire\wire('modules') as $module) {
-      if (preg_match('/^Fieldtype/', $module->name)) {
+      if (preg_match('/^Fieldtype/', (string)$module->name)) {
         $fieldtypes[] = $module->name;
       }
     }
