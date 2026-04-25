@@ -94,8 +94,6 @@ class PwUserTools extends PwConnector {
         $editedUser->removeRole($role->name);
       }
     }
-    $editedUser->save();
-
     // remove existing roles
     if ($reset === true) {
       foreach ($editedUser->roles as $role) {
@@ -109,8 +107,9 @@ class PwUserTools extends PwConnector {
       $this->checkIfRoleExists($role, $output);
 
       $editedUser->addRole($role);
-      $editedUser->save();
     }
+
+    $editedUser->save();
 
     return $editedUser;
   }
