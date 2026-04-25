@@ -38,7 +38,7 @@ class FieldTypesCommand extends PwConnector {
 
     // get available fieldtypes
     foreach (\ProcessWire\wire('modules') as $module) {
-      if (preg_match('/^Fieldtype/', $module->name)) {
+      if (preg_match('/^Fieldtype/', (string)$module->name)) {
         $tools->writeDfList($module->name, substr($module->name, 9));
       }
     }
