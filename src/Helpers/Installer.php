@@ -346,17 +346,8 @@ class Installer {
    * @param array $values
    */
   protected function dbSaveConfigFile(array $values) {
-    $file = __FILE__; 
-		$time = time();
-		$host = empty($values['httpHosts']) ? '' : implode(',', $values['httpHosts']);
-
-		if(function_exists('random_bytes')) {
-			$authSalt = sha1(random_bytes(random_int(40, 128)));
-			$tableSalt = sha1(random_int(0, 65535) . "$host$file$time"); 
-		} else {
-			$authSalt = md5(mt_rand() . microtime(true));
-			$tableSalt = md5(mt_rand() . "$host$file$time"); 
-		}
+		$authSalt = bin2hex(random_bytes(20));
+		$tableSalt = bin2hex(random_bytes(20));
 
     $cfg =  "\n/**" .
       "\n * Installer: Database Configuration" .
