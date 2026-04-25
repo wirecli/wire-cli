@@ -47,7 +47,7 @@ class FieldListCommand extends PwConnector {
     // get available fields
     $fieldtypes = array();
     foreach (\ProcessWire\wire('modules') as $module) {
-      if (preg_match('/^Fieldtype/', $module->name)) {
+      if (preg_match('/^Fieldtype/', (string)$module->name)) {
         $fieldtypes[] = $module->name;
       }
     }
@@ -55,7 +55,7 @@ class FieldListCommand extends PwConnector {
     $headers = array('Name', 'Label', 'Type', 'Templates');
     $data = $this->getData($this->getFilter($input));
 
-    if (count($data->count) > 0) {
+    if ($data->count > 0) {
       foreach ($data->content as $tag => $c) {
         $tools->writeInfo('--- ' . strtoupper($tag) . ' ---');
         $tables = new Tables($output);
