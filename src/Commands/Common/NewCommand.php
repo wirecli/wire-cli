@@ -15,6 +15,7 @@ use Wirecli\Helpers\Downloader;
 use Wirecli\Helpers\Installer;
 use Wirecli\Helpers\PwConnector;
 use Wirecli\Helpers\WsTools as Tools;
+use ZipArchive;
 
 /**
  * Class NewCommand
@@ -650,8 +651,15 @@ class NewCommand extends PWConnector {
 
     try {
       $extractPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid(time()) . DIRECTORY_SEPARATOR;
-      // TODO: use Symfony ZipArchive class
-      //$extractionSucceeded = $distill->extractWithoutRootDirectory($profile, $extractPath);
+      $this->fs->mkdir($extractPath);
+
+      $zip = new ZipArchive;
+      $extractionSucceeded = false;
+
+      if ($zip->open($profile) === TRUE) {
+        $extractionSucceeded = $zip->extractTo($extractPath);
+        $zip->close();
+      }
 
       foreach (new \DirectoryIterator($extractPath) as $fileInfo) {
         if ($fileInfo->isDir() && !$fileInfo->isDot()) {
