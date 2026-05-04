@@ -59,7 +59,7 @@
       "php": "8.1.0"
     }
   },
-  "version": "1.4.16",
+  "version": "1.4.17",
   "extra": {
     "processwire": {
       "min-version": "3.0.0",
